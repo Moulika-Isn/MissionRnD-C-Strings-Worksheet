@@ -12,80 +12,111 @@ NOTES: If there are no common words return NULL.
 */
 
 #include <stdio.h>
-
 #include <malloc.h>
 
 #define SIZE 31
 
-int length(char str[])
+int word_count(char *s)
 {
-	int i = 0;
-	while (str[i] != '\0')
-		i++;
-	return i;
-}
-char ** commonWords(char *str1, char *str2) {
-	char s1[31][10], s2[31][10];
-	char **p;
-	int i = 0, x = 0, y = 0, j = 0;
-	int m, k = 0, s, t = 0, a;
-	if (!(str1) || (str2))
-		return NULL;
-	i = length(str1);
-	j = length(str2);
-	for (m = 0; m <= i; m++)
+	int i, count = 0;
+	for (i = 0; s[i]; i++)
 	{
-		if ((*(str1 + m) == ' ') || (*(str1 + m) == '\0'))
+		if ((s[i + 1] == ' ' || s[i + 1] == '\0') && (i - 1) >= 0 && s[i] != ' ')
 		{
-			a = 0;
-			for (k; k < m; k++)
-			{
-				s1[x][a] = *(str1 + k);
-				a++;
-			}
-			s1[x][a] = '\0';
-			k++;
-			x++;
+			++count;
 		}
 	}
-	k = 0;
-    for (m = 0; m <= j; m++)
-    {
-        if ((*(str2 + m) == ' ') || (*(str2 + m) == '\0'))
-        {
-			a = 0;
-            for (k; k < m; k++)
-            {
-                s2[y][a] = *(str2 + k);
-                a++;
-            }
-            s2[y][a] = '\0';
-            k++;
-            y++;
-        }
-    }
-	for (i = 0; i < x; i++)
+	return count;
+}
+int isSame(char *p, char *q)
+{
+	int i;
+	for (i = 0; p[i] && q[i]; i++)
 	{
-		for (j = 0; j < y; j++)
+		if (p[i] != q[i]){
+			return 0;
+		}
+	}
+	if (p[i] == '\0'&&q[i] == '\0')
+		return 1;
+	return 0;
+
+}
+void stringCopy(char *p, char *q)
+{
+	int i;
+	for (i = 0; q[i]; i++){
+		p[i] = q[i];
+	}
+	p[i] = '\0';
+}
+char** extractWord(char *str1, int w)
+{
+	int i, j, k, s=0, e, r=0;
+	char **str;
+	str = (char **)malloc(w*sizeof(char *));
+	for (i = 0; i < w; i++){
+		str[i] = (char *)malloc(SIZE*sizeof(char));
+	}
+	for (i = 0; str1[i]; i++)
+	{
+		e = 0;
+		if ((str1[i + 1] == ' ' || str1[i + 1] == '\0'))
 		{
-			a = 0;
-			for (k = 0; s1[i][k] != '\0', s2[j][k] != '\0'; k++)
+			e = i;
+		}
+		if (e != 0)
+		{
+			for (j = s, k = 0; j <= e; j++)
 			{
-				if (s1[i][k] != s2[j][k])
+				if (str1[j] != ' ')
 				{
-					a = 1;
-					break;
+					str[r][k] = str1[j];
+					k++;
 				}
 			}
-			if (a == 0)
+			str[r][k] = '\0';
+			s = e + 2;
+			if (k != 0)
+				r++;
+		}
+	}
+	return str;
+}
+char ** commonWords(char *str1, char *str2) {
+	if (str1 == NULL || str2 == NULL)
+		return NULL;
+	int i, j, w1 = 0, w2 = 0, s = 0, e = 0, r = 0;
+	int cw;
+	char **s1, **s2, **s3;
+	w1 = word_count(str1);
+	w2 = word_count(str2);
+    if (w1 == 0 || w2 == 0)
+		return NULL;
+	s1 = (char **)malloc(w1*sizeof(char *));
+	for (i = 0; i < w1; i++)
+		s1[i] = (char *)malloc(SIZE*sizeof(char));
+	s2 = (char **)malloc(w2*sizeof(char *));
+	for (i = 0; i < w1; i++)
+		s2[i] = (char *)malloc(SIZE*sizeof(char));
+	s3 = (char **)malloc(w1*sizeof(char *));
+	for (i = 0; i < w1; i++)
+		s3[i] = (char *)malloc(SIZE*sizeof(char));
+	s1 = extractWord(str1, w1);
+	s2 = extractWord(str2, w2);
+	cw = 0;
+	for (i = 0; i < w1; i++)
+	{
+		for (j = 0; j < w2; j++)
+		{
+			if (isSame(s1[i], s2[j]))
 			{
-				for (m = 0; s1[i][m] != '\0'; m++)
-					*(*(p + t) + m) = s1[i][m];
-				*(*(p + t) + m) = '\0';
-				t++;
+				stringCopy(s3[cw++], s1[i]);
 			}
 		}
 	}
-	return p;
-	
+	if (cw == 0)
+		return NULL;
+
+	return s3;
 }
